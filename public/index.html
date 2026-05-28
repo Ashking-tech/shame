@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hall | Wall of Shame</title>
+    <meta
+      name="description"
+      content="A minimal dark image wall for cursed screenshots, awkward moments, and chaotic uploads."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div class="hero__brand">
+          <h1>Hall of Shame</h1>
+          <p class="hero__subhead">unhinged/funny screenshots</p>
+        </div>
+        <button id="upload-toggle" class="upload-toggle" type="button">
+          Upload
+        </button>
+      </header>
+
+      <aside id="upload-panel" class="upload-panel" hidden aria-label="Upload image">
+        <form id="upload-form" class="upload-form">
+          <label class="field">
+            <span>Admin token</span>
+            <input
+              id="admin-token-input"
+              name="adminToken"
+              type="password"
+              placeholder="Only needed for delete access"
+              autocomplete="current-password"
+            />
+          </label>
+          <label class="field">
+            <span>Caption</span>
+            <input
+              id="caption-input"
+              name="caption"
+              type="text"
+              maxlength="60"
+              placeholder="Parking job of the year"
+            />
+          </label>
+          <label id="dropzone" class="dropzone" for="image-input">
+            <input
+              id="image-input"
+              name="image"
+              type="file"
+              accept="image/*"
+            />
+            <span class="dropzone__title">Upload image</span>
+            <span class="dropzone__meta">Click or drop a file here</span>
+          </label>
+          <button type="submit" class="submit">Post to wall</button>
+          <p id="form-status" class="form-status" aria-live="polite"></p>
+        </form>
+      </aside>
+
+      <section class="board-wrap">
+        <section
+          id="board"
+          class="board"
+          aria-live="polite"
+          aria-label="Image board"
+        ></section>
+        <section id="empty-state" class="empty-state" hidden>
+          <p>No posts yet. Start the wall with the first upload.</p>
+        </section>
+      </section>
+    </main>
+
+    <template id="card-template">
+      <article class="card">
+        <div class="card__image-wrap">
+          <img class="card__image" alt="" loading="lazy" />
+        </div>
+        <div class="card__meta">
+          <p class="card__caption"></p>
+          <button class="card__delete" type="button" hidden>Delete</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="./script.js" type="module"></script>
+  </body>
+</html>
