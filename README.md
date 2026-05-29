@@ -6,7 +6,7 @@
 
 ## Preview
 
-![Hall of Shame Screenshot](/uploads/pasted file.png)
+![Hall of Shame Screenshot](/pasted.png)
 
 <!-- Replace preview.png with your actual screenshot path -->
 
