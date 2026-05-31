@@ -13,12 +13,36 @@ const formStatus = document.querySelector("#form-status");
 const ADMIN_TOKEN_KEY = "hall-admin-token";
 
 adminTokenInput.value = loadAdminToken();
-adminTokenInput.addEventListener("input", () => {
+
+let verifiedToken = "";
+
+adminTokenInput.addEventListener("input", async () => {
   const token = adminTokenInput.value.trim();
   window.localStorage.setItem(ADMIN_TOKEN_KEY, token);
-  renderDeleteControls();
+  await verifyAndRender(token);
 });
 
+async function verifyAndRender(token) {
+  if (!token) {
+    verifiedToken = "";
+    renderDeleteControls();
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/verify-token", {
+      headers: { "x-admin-token": token },
+    });
+    const result = await response.json();
+    verifiedToken = result.valid ? token : "";
+  } catch {
+    verifiedToken = "";
+  }
+
+  renderDeleteControls();
+}
+
+verifyAndRender(loadAdminToken());
 hydrateBoard();
 
 uploadToggle.addEventListener("click", () => {
@@ -144,7 +168,7 @@ function buildCard(post) {
   image.alt = post.caption;
   caption.textContent = post.caption;
 
-  deleteButton.hidden = !hasAdminToken();
+  deleteButton.hidden = !Boolean(verifiedToken);
   deleteButton.addEventListener("click", () => {
     deletePost(post.id, card);
   });
@@ -164,8 +188,7 @@ function setStatus(message, isError = false) {
 }
 
 async function deletePost(postId, card) {
-  const token = loadAdminToken();
-  if (!token) {
+  if (!verifiedToken) {
     setStatus("Enter the admin token to delete posts.", true);
     uploadPanel.hidden = false;
     uploadToggle.textContent = "Close";
@@ -177,7 +200,7 @@ async function deletePost(postId, card) {
     const response = await fetch(`/api/posts/${postId}`, {
       method: "DELETE",
       headers: {
-        "x-admin-token": token,
+        "x-admin-token": verifiedToken,
       },
     });
 
@@ -195,14 +218,10 @@ async function deletePost(postId, card) {
 }
 
 function renderDeleteControls() {
-  const shouldShow = hasAdminToken();
+  const shouldShow = Boolean(verifiedToken);
   board.querySelectorAll(".card__delete").forEach((button) => {
     button.hidden = !shouldShow;
   });
-}
-
-function hasAdminToken() {
-  return Boolean(loadAdminToken());
 }
 
 function loadAdminToken() {
