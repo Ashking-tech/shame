@@ -129,18 +129,25 @@ imageInput.addEventListener("change", () => {
   setStatus(`${file.name} ready to post.`);
 });
 
+// ponytail: local dummy wall — shows ./img/* when API is dummy/unreachable
+const DUMMY_POSTS = [
+  { id: "dummy-1", caption: "Screenshot 20260531", imageUrl: "./img/Screenshot_20260531_010155.png" },
+  { id: "dummy-2", caption: "Screenshot 20260610", imageUrl: "./img/Screenshot_20260610_171059.png" },
+  { id: "dummy-3", caption: "Screenshot 20260614", imageUrl: "./img/Screenshot_20260614_164355.png" },
+  { id: "dummy-4", caption: "Screenshot 20260617", imageUrl: "./img/Screenshot_20260617_204226.png" },
+];
+
 async function hydrateBoard() {
   try {
     const response = await fetch("/api/posts");
     const posts = await response.json();
 
-    if (!response.ok) {
-      throw new Error("Could not load posts.");
-    }
-
+    if (!response.ok) throw new Error("Could not load posts.");
+    if (!posts.length) { renderPosts(DUMMY_POSTS); return; }
     renderPosts(posts);
   } catch (error) {
-    setStatus(error.message || "Could not load posts.", true);
+    // fallback to local img folder when Supabase dummy/offline
+    renderPosts(DUMMY_POSTS);
   }
 }
 
@@ -188,6 +195,13 @@ function setStatus(message, isError = false) {
 }
 
 async function deletePost(postId, card) {
+  // ponytail: dummy cards are local-only, no API needed
+  if (String(postId).startsWith("dummy-")) {
+    card.remove();
+    emptyState.hidden = board.children.length > 0;
+    setStatus("Post deleted.");
+    return;
+  }
   if (!verifiedToken) {
     setStatus("Enter the admin token to delete posts.", true);
     uploadPanel.hidden = false;
