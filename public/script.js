@@ -129,6 +129,25 @@ imageInput.addEventListener("change", () => {
   setStatus(`${file.name} ready to post.`);
 });
 
+// ponytail: paste image from clipboard (Ctrl+V) — reuses same DataTransfer path
+document.addEventListener("paste", (event) => {
+  const items = [...(event.clipboardData?.items || [])];
+  const imgItem = items.find((i) => i.kind === "file" && i.type.startsWith("image/"));
+  const file = imgItem?.getAsFile() || [...(event.clipboardData?.files || [])].find((f) => f.type.startsWith("image/"));
+  if (!file) return;
+  event.preventDefault();
+  if (uploadPanel.hidden) {
+    uploadPanel.hidden = false;
+    uploadToggle.textContent = "Close";
+  }
+  const transfer = new DataTransfer();
+  transfer.items.add(file);
+  imageInput.files = transfer.files;
+  setStatus(`${file.name || "pasted image"} ready to post.`);
+  dropzone.classList.add("is-dragging");
+  setTimeout(() => dropzone.classList.remove("is-dragging"), 400);
+});
+
 // ponytail: local dummy wall — shows ./img/* when API is dummy/unreachable
 const DUMMY_POSTS = [
   { id: "dummy-1", caption: "Screenshot 20260531", imageUrl: "./img/Screenshot_20260531_010155.png" },
